@@ -25,7 +25,7 @@ func AddExpense(description string, amount int) {
 	}
 	expenses = append(expenses, expense)
 	saveExpenses(expenses)
-	fmt.Printf("Expense added successfully (ID: %d)", expense.ID)
+	fmt.Printf("Expense added successfully (ID: %d)\n", expense.ID)
 
 }
 func deleteExpense(id int) {

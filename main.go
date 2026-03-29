@@ -8,11 +8,12 @@ import (
 )
 
 func main() {
-	fmt.Println("Type: [expense-tracker list] to know how to use the cli")
+	//fmt.Println("Type: [expense-tracker list] to know how to use the cli")
 	if len(os.Args) < 2 {
 		fmt.Println("Not enough number of arguements")
 		return
 	}
+
 	command := os.Args[1]
 	switch command {
 	case "add":
@@ -30,6 +31,10 @@ func main() {
 			fmt.Println("Not enough number of arguements")
 			return
 		}
+		expenses := loadExpense()
+		if len(expenses) == 0 {
+			fmt.Println("There are no expenses yet")
+		}
 		ListExpenses()
 	case "summary":
 		if len(os.Args) < 2 {
@@ -43,6 +48,10 @@ func main() {
 		if len(os.Args) < 4 {
 			fmt.Println("Not enough number of arguements")
 			return
+		}
+		expenses := loadExpense()
+		if len(expenses) == 0 {
+			fmt.Println("There are no expenses yet")
 		}
 		val := os.Args[3]
 		id := ID(val)
