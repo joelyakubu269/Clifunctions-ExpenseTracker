@@ -67,7 +67,7 @@ func ListExpenses() {
 		)
 	}
 }
-func TotalExpenses(summary string) int {
+func TotalExpenses() int {
 	expenses := loadExpense()
 	sum := 0
 	for _, r := range expenses {
