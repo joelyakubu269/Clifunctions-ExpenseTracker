@@ -5,18 +5,16 @@ import (
 	"time"
 )
 
-func AddExpense(description string, amount int) {
+func AddExpense(description string, amount float64) {
 	expenses := loadExpense()
 	var maxID int
-	if len(expenses) == 0 {
-		maxID = 1
-	}
 
 	for _, r := range expenses {
 		if r.ID > maxID {
 			maxID = r.ID
 		}
 	}
+	maxID++
 	expense := Expense{
 		ID:          maxID,
 		Description: description,
@@ -40,7 +38,7 @@ func deleteExpense(id int) {
 	fmt.Println("Expense deleted successfully")
 
 }
-func updateExpense(description string, amount int) {
+func updateExpense(description string, amount float64) {
 	expenses := loadExpense()
 	found := false
 	for i, r := range expenses {
@@ -60,25 +58,25 @@ func updateExpense(description string, amount int) {
 func ListExpenses() {
 	expenses := loadExpense()
 	for _, r := range expenses {
-		fmt.Printf("#%d\t%s\t%s\t%d\n",
+		fmt.Printf("#%d\t%s\t%s\t%.2f\n",
 			r.ID,
 			r.Date.Format("2006-01-02"),
 			r.Description, r.Amount,
 		)
 	}
 }
-func TotalExpenses() int {
+func TotalExpenses() float64 {
 	expenses := loadExpense()
-	sum := 0
+	sum := 0.00
 	for _, r := range expenses {
 		sum += r.Amount
 	}
 	return sum
 
 }
-func ExpensesByMonth(month int) int {
+func ExpensesByMonth(month int) float64 {
 	expenses := loadExpense()
-	sum := 0
+	sum := 0.00
 	for _, r := range expenses {
 		if int(r.Date.Month()) == month {
 			sum += r.Amount
