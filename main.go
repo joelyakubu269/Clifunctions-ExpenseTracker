@@ -13,12 +13,12 @@ func main() {
 		fmt.Println("Use 'expense-tracker help' to see available commands")
 		return
 	}
-
-	command := os.Args[1]
+	var command string
+	flag.StringVar(&command, "cmd", "", "command you want to carry out")
+	flag.Parse()
 	switch command {
 	case "add":
 		addCmd := flag.NewFlagSet("add", flag.ExitOnError)
-		//description:= os.Args[3]
 		description := addCmd.String("description", "", "add your new expense")
 		amount := addCmd.Float64("amount", 0, "the expense amount")
 		val := amount

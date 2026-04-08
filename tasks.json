@@ -16,5 +16,11 @@
   "description": "buy a lambo",
   "amount": 100,
   "date": "2026-04-05T20:54:37.874264573+01:00"
+ },
+ {
+  "int": 3,
+  "description": "buy a new tooth brush",
+  "amount": 500,
+  "date": "2026-04-08T19:30:01.628126469+01:00"
  }
 ]
