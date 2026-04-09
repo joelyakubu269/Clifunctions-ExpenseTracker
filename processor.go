@@ -56,26 +56,35 @@ func deleteExpense(id int) error {
 	return saveExpenses(delete)
 
 }
-func updateExpense(description string, amount float64) ([]Expense, error) {
+func updateExpense(description string, amount float64) (Expense, error) {
 	expenses, err := loadExpense()
 	if err != nil {
-		return nil, err
+		return Expense{}, err
 	}
-	found := false
+
 	for i, r := range expenses {
 		if r.Description == description {
 			expenses[i].Amount = amount // made sure to use expenses[i] just using r wil only b
 			// modifying the copy (unused write)
-			found = true
-			break
+			expenses[i].Amount = amount
+
+			err = saveExpenses(expenses)
+			if err != nil {
+				return Expense{}, err
+			}
+
+			return expenses[i], nil
 		}
 	}
-	if !found {
-		
-	}
-	saveExpenses(expenses)
-	return expenses, err
+
+	return Expense{}, fmt.Errorf("expense with description '%s' not found", description)
 }
+
+		
+		
+		
+
+
 func ListExpenses() error {
 	expenses, err := loadExpense()
 	if err != nil {
