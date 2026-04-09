@@ -5,8 +5,14 @@ import (
 	"time"
 )
 
-func AddExpense(description string, amount float64) {
-	expenses := loadExpense()
+func AddExpense(description string, amount float64) (Expense, error) {
+	if description == "" || amount <= 0 {
+		return Expense{}, fmt.Errorf("invalid description or amount")
+	}
+	expenses, err := loadExpense()
+	if err != nil {
+		return Expense{}, err
+	}
 	var maxID int
 
 	for _, r := range expenses {
@@ -22,12 +28,17 @@ func AddExpense(description string, amount float64) {
 		Date:        time.Now(),
 	}
 	expenses = append(expenses, expense)
-	saveExpenses(expenses)
-	fmt.Printf("Expense added successfully (ID: %d)\n", expense.ID)
-
+	err = saveExpenses(expenses)
+	if err != nil {
+		return Expense{}, fmt.Errorf("unable to save")
+	}
+	return expense, nil
 }
-func deleteExpense(id int) {
-	expenses := loadExpense()
+func deleteExpense(id int) error {
+	expenses, err := loadExpense()
+	if err != nil {
+		return err
+	}
 	var delete []Expense
 	for _, r := range expenses {
 		if r.ID != id {
@@ -35,11 +46,13 @@ func deleteExpense(id int) {
 		}
 	}
 	saveExpenses(delete)
-	fmt.Println("Expense deleted successfully")
-
+	return nil
 }
-func updateExpense(description string, amount float64) {
-	expenses := loadExpense()
+func updateExpense(description string, amount float64) ([]Expense, error) {
+	expenses, err := loadExpense()
+	if err != nil {
+		return nil, err
+	}
 	found := false
 	for i, r := range expenses {
 		if r.Description == description {
@@ -53,10 +66,13 @@ func updateExpense(description string, amount float64) {
 		fmt.Println("Description:Expense not found")
 	}
 	saveExpenses(expenses)
-	fmt.Printf("The new amount is now %d", amount)
+	return expenses,err
 }
-func ListExpenses() {
-	expenses := loadExpense()
+func ListExpenses() error {
+	expenses, err := loadExpense()
+	if err != nil {
+		return err
+	}
 	for _, r := range expenses {
 		fmt.Printf("#%d\t%s\t%s\t%.2f\n",
 			r.ID,
@@ -64,23 +80,30 @@ func ListExpenses() {
 			r.Description, r.Amount,
 		)
 	}
+	return nil
 }
-func TotalExpenses() float64 {
-	expenses := loadExpense()
+func TotalExpenses() (float64, error) {
+	expenses, err := loadExpense()
+	if err != nil {
+		return 0, err
+	}
 	sum := 0.00
 	for _, r := range expenses {
 		sum += r.Amount
 	}
-	return sum
+	return sum, err
 
 }
-func ExpensesByMonth(month int) float64 {
-	expenses := loadExpense()
+func ExpensesByMonth(month int) (float64, error) {
+	expenses, err := loadExpense()
+	if err != nil {
+		return 0, err
+	}
 	sum := 0.00
 	for _, r := range expenses {
 		if int(r.Date.Month()) == month {
 			sum += r.Amount
 		}
 	}
-	return sum
+	return sum, err
 }

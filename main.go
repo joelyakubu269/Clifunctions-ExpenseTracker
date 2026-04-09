@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -13,15 +14,13 @@ func main() {
 		fmt.Println("Use 'expense-tracker help' to see available commands")
 		return
 	}
-	var command string
-	flag.StringVar(&command, "cmd", "", "command you want to carry out")
-	flag.Parse()
+	command := os.Args[1]
 	switch command {
 	case "add":
 		addCmd := flag.NewFlagSet("add", flag.ExitOnError)
 		description := addCmd.String("description", "", "add your new expense")
 		amount := addCmd.Float64("amount", 0, "the expense amount")
-		val := amount
+
 		addCmd.Parse(os.Args[2:])
 		addCmd.Usage = func() {
 			fmt.Println("Add a new expense")
@@ -30,7 +29,8 @@ func main() {
 			fmt.Println("\nFlags:")
 			addCmd.PrintDefaults()
 		}
-		AddExpense(*description, *val)
+		AddExpense(*description, *amount)
+
 	case "list":
 		listCmd := flag.NewFlagSet("list", flag.ExitOnError)
 		listCmd.Parse(os.Args[2:])
@@ -39,7 +39,11 @@ func main() {
 			fmt.Println("expense-tracker list")
 			listCmd.PrintDefaults()
 		}
-		expenses := loadExpense()
+		expenses, err := loadExpense()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 		if len(expenses) == 0 {
 			fmt.Println("There are no expenses yet")
 		}
@@ -54,7 +58,11 @@ func main() {
 			fmt.Println("\nFlags:")
 			sumCmd.PrintDefaults()
 		}
-		sum := TotalExpenses()
+		sum, err := TotalExpenses()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 		fmt.Printf("Total expenses: $%.2f\n", sum)
 
 	case "delete":
@@ -89,6 +97,17 @@ func main() {
 
 		sum := ExpensesByMonth(*month)
 		fmt.Printf("Total expenses for month %d: $%.2f\n", *month, sum)
+	case "update":
+		upCmd := flag.NewFlagSet("updating amount of an expense", flag.ExitOnError)
+		description := upCmd.String("desc", "", "describe  the expense to be updated")
+		amount := upCmd.Float64("amount", 0, "amount  to be updated")
+		upCmd.Parse(os.Args[2:])
+		exp, err := updateExpense(*description, *amount)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Expense added successfully (ID: %d)\n", exp.ID)
+
 	case "help":
 		fmt.Println("Expense Tracker CLI")
 		fmt.Println("\nUsage:")
