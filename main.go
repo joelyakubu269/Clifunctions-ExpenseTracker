@@ -29,14 +29,15 @@ func main() {
 			fmt.Println("\nFlags:")
 			addCmd.PrintDefaults()
 		}
-		exp, err := AddExpense(*description, *amount)
-		if err != nil {
-			log.Fatal(err)
-		}
 		if *description == "" || *amount <= 0 {
 			addCmd.Usage()
 			return
 		}
+		exp, err := AddExpense(*description, *amount)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		fmt.Printf("Added expense: ID=%d\n", exp.ID)
 
 	case "list":
