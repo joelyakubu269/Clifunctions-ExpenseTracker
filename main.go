@@ -99,7 +99,10 @@ func main() {
 			fmt.Println("There are no expenses yet")
 		}
 
-		deleteExpense(*id)
+		err = deleteExpense(*id)
+		if err != nil {
+			log.Fatal(err)
+		}
 	case "monthlyExpense":
 		monthlyCmd := flag.NewFlagSet("monthlyExpense", flag.ExitOnError)
 

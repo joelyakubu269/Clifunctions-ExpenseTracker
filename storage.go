@@ -15,7 +15,7 @@ func loadExpense() ([]Expense, error) {
 		}
 		data = []byte("[]")
 	} else if err != nil {
-		fmt.Println("Error:", err)
+	return nil, fmt.Errorf("failed to read tasks.json: %v", err)
 	}
 	var expenses []Expense
 	err = json.Unmarshal(data, &expenses)

@@ -49,9 +49,8 @@ func deleteExpense(id int) error {
 		delete = append(delete, r)
 	}
 	if !found {
-		if !found {
-			return fmt.Errorf("expense with ID %d not found", id)
-		}
+		return fmt.Errorf("expense with ID %d not found", id)
+
 	}
 	return saveExpenses(delete)
 
@@ -66,7 +65,6 @@ func updateExpense(description string, amount float64) (Expense, error) {
 		if r.Description == description {
 			expenses[i].Amount = amount // made sure to use expenses[i] just using r wil only b
 			// modifying the copy (unused write)
-			expenses[i].Amount = amount
 
 			err = saveExpenses(expenses)
 			if err != nil {
@@ -80,17 +78,12 @@ func updateExpense(description string, amount float64) (Expense, error) {
 	return Expense{}, fmt.Errorf("expense with description '%s' not found", description)
 }
 
-		
-		
-		
-
-
-func ListExpenses() ([]Expense,error) {
+func ListExpenses() ([]Expense, error) {
 	expenses, err := loadExpense()
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	
+
 	return expenses, nil
 }
 func TotalExpenses() (float64, error) {
