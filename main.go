@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	//fmt.Println("Type: [expense-tracker list] to know how to use the cli")
+
 	if len(os.Args) < 2 {
 		fmt.Println("Not enough number of arguements")
 		fmt.Println("Use 'expense-tracker help' to see available commands")
@@ -17,28 +17,6 @@ func main() {
 	command := os.Args[1]
 	switch command {
 	case "add":
-		addCmd := flag.NewFlagSet("add", flag.ExitOnError)
-		description := addCmd.String("description", "", "add your new expense")
-		amount := addCmd.Float64("amount", 0, "the expense amount")
-
-		addCmd.Parse(os.Args[2:])
-		addCmd.Usage = func() {
-			fmt.Println("Add a new expense")
-			fmt.Println("Usage")
-			fmt.Println("expense-tracker add -description=\"desc\" -amount=100")
-			fmt.Println("\nFlags:")
-			addCmd.PrintDefaults()
-		}
-		if *description == "" || *amount <= 0 {
-			addCmd.Usage()
-			return
-		}
-		exp, err := AddExpense(*description, *amount)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Printf("Added expense: ID=%d\n", exp.ID)
 
 	case "list":
 		listCmd := flag.NewFlagSet("list", flag.ExitOnError)
@@ -145,5 +123,33 @@ func main() {
 		fmt.Println("\nUse 'expense-tracker <command> -h' for command-specific help")
 
 	}
+
+}
+func handleAddCmd() {
+	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
+	description := addCmd.String("description", "", "add your new expense")
+	amount := addCmd.Float64("amount", 0, "the expense amount")
+
+	addCmd.Parse(os.Args[2:])
+	addCmd.Usage = func() {
+		fmt.Println("Add a new expense")
+		fmt.Println("Usage")
+		fmt.Println("expense-tracker add -description=\"desc\" -amount=100")
+		fmt.Println("\nFlags:")
+		addCmd.PrintDefaults()
+	}
+	if *description == "" || *amount <= 0 {
+		addCmd.Usage()
+		return
+	}
+	exp, err := AddExpense(*description, *amount)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Added expense: ID=%d\n", exp.ID)
+
+}
+func listCommand() {
 
 }
