@@ -29,9 +29,13 @@ func main() {
 			fmt.Println("\nFlags:")
 			addCmd.PrintDefaults()
 		}
-		exp,err:= AddExpense(*description, *amount)
-		if err!= nil {
+		exp, err := AddExpense(*description, *amount)
+		if err != nil {
 			log.Fatal(err)
+		}
+		if *description == "" || *amount <= 0 {
+			addCmd.Usage()
+			return
 		}
 		fmt.Printf("Added expense: ID=%d\n", exp.ID)
 
@@ -43,7 +47,7 @@ func main() {
 			fmt.Println("expense-tracker list")
 			listCmd.PrintDefaults()
 		}
-		expenses, err := loadExpense()
+		expenses, err := ListExpenses()
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -51,7 +55,13 @@ func main() {
 		if len(expenses) == 0 {
 			fmt.Println("There are no expenses yet")
 		}
-		ListExpenses()
+		for _, r := range expenses {
+			fmt.Printf("#%d\t%s\t%s\t%.2f\n",
+				r.ID,
+				r.Date.Format("2006-01-02"),
+				r.Description, r.Amount,
+			)
+		}
 	case "summary":
 		sumCmd := flag.NewFlagSet("summary", flag.ExitOnError)
 		sumCmd.Parse(os.Args[2:])

@@ -85,19 +85,13 @@ func updateExpense(description string, amount float64) (Expense, error) {
 		
 
 
-func ListExpenses() error {
+func ListExpenses() ([]Expense,error) {
 	expenses, err := loadExpense()
 	if err != nil {
-		return err
+		return nil,err
 	}
-	for _, r := range expenses {
-		fmt.Printf("#%d\t%s\t%s\t%.2f\n",
-			r.ID,
-			r.Date.Format("2006-01-02"),
-			r.Description, r.Amount,
-		)
-	}
-	return nil
+	
+	return expenses, nil
 }
 func TotalExpenses() (float64, error) {
 	expenses, err := loadExpense()
