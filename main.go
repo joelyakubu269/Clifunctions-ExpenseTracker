@@ -29,7 +29,11 @@ func main() {
 			fmt.Println("\nFlags:")
 			addCmd.PrintDefaults()
 		}
-		AddExpense(*description, *amount)
+		exp,err:= AddExpense(*description, *amount)
+		if err!= nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Added expense: ID=%d\n", exp.ID)
 
 	case "list":
 		listCmd := flag.NewFlagSet("list", flag.ExitOnError)
@@ -76,7 +80,10 @@ func main() {
 			fmt.Println("\nFlags")
 			delCmd.PrintDefaults()
 		}
-		expenses := loadExpense()
+		expenses, err := loadExpense()
+		if err != nil {
+			fmt.Println(err)
+		}
 		if len(expenses) == 0 {
 			fmt.Println("There are no expenses yet")
 		}
@@ -95,7 +102,10 @@ func main() {
 
 		}
 
-		sum := ExpensesByMonth(*month)
+		sum, err := ExpensesByMonth(*month)
+		if err != nil {
+			fmt.Println(err)
+		}
 		fmt.Printf("Total expenses for month %d: $%.2f\n", *month, sum)
 	case "update":
 		upCmd := flag.NewFlagSet("updating amount of an expense", flag.ExitOnError)

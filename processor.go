@@ -40,13 +40,21 @@ func deleteExpense(id int) error {
 		return err
 	}
 	var delete []Expense
+	found := false
 	for _, r := range expenses {
-		if r.ID != id {
-			delete = append(delete, r) // i have issues on whether to reset the ids after deleting
+		if r.ID == id {
+			found = true
+			continue // i have issues on whether to reset the ids after deleting
+		}
+		delete = append(delete, r)
+	}
+	if !found {
+		if !found {
+			return fmt.Errorf("expense with ID %d not found", id)
 		}
 	}
-	saveExpenses(delete)
-	return nil
+	return saveExpenses(delete)
+
 }
 func updateExpense(description string, amount float64) ([]Expense, error) {
 	expenses, err := loadExpense()
@@ -63,10 +71,10 @@ func updateExpense(description string, amount float64) ([]Expense, error) {
 		}
 	}
 	if !found {
-		fmt.Println("Description:Expense not found")
+		
 	}
 	saveExpenses(expenses)
-	return expenses,err
+	return expenses, err
 }
 func ListExpenses() error {
 	expenses, err := loadExpense()
