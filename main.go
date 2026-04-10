@@ -23,46 +23,9 @@ func main() {
 	case "summary":
 
 	case "delete":
-		delCmd := flag.NewFlagSet("delete", flag.ExitOnError)
-		id := delCmd.Int("id", 0, "the id of the expense you want to delete")
-		delCmd.Parse(os.Args[2:])
-		delCmd.Usage = func() {
-			fmt.Println("Delete an expense")
-			fmt.Println("usage:")
-			fmt.Println("  expense-tracker delete -id=1")
-			fmt.Println("\nFlags")
-			delCmd.PrintDefaults()
-		}
-		expenses, err := loadExpense()
-		if err != nil {
-			fmt.Println(err)
-		}
-		if len(expenses) == 0 {
-			fmt.Println("There are no expenses yet")
-		}
-
-		err = deleteExpense(*id)
-		if err != nil {
-			log.Fatal(err)
-		}
+		
 	case "monthlyExpense":
-		monthlyCmd := flag.NewFlagSet("monthlyExpense", flag.ExitOnError)
-
-		month := monthlyCmd.Int("month", 0, "Provide the months number")
-		monthlyCmd.Parse(os.Args[2:])
-		monthlyCmd.Usage = func() {
-			fmt.Println("calculate  the expense for the month")
-			fmt.Println("Usuage")
-			fmt.Println("expense-tracker list")
-			monthlyCmd.PrintDefaults()
-
-		}
-
-		sum, err := ExpensesByMonth(*month)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Printf("Total expenses for month %d: $%.2f\n", *month, sum)
+		
 	case "update":
 		upCmd := flag.NewFlagSet("updating amount of an expense", flag.ExitOnError)
 		description := upCmd.String("desc", "", "describe  the expense to be updated")
@@ -167,3 +130,17 @@ func handleDelCmd() {
 		os.Exit(1)
 	}
 }
+func handleMonthCmd() {
+monthlyCmd := flag.NewFlagSet("monthlyExpense", flag.ExitOnError)
+
+		month := monthlyCmd.Int("month", 0, "Provide the months number")
+		monthlyCmd.Parse(os.Args[2:])
+		printCommandUsage(monthlyCmd,"expense-tracker list")
+
+		sum, err := ExpensesByMonth(*month)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Printf("Total expenses for month %d: $%.2f\n", *month, sum)
+}
+func
