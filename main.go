@@ -19,44 +19,8 @@ func main() {
 	case "add":
 
 	case "list":
-		listCmd := flag.NewFlagSet("list", flag.ExitOnError)
-		listCmd.Parse(os.Args[2:])
-		listCmd.Usage = func() {
-			fmt.Println("Usuage:")
-			fmt.Println("expense-tracker list")
-			listCmd.PrintDefaults()
-		}
-		expenses, err := ListExpenses()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		if len(expenses) == 0 {
-			fmt.Println("There are no expenses yet")
-		}
-		for _, r := range expenses {
-			fmt.Printf("#%d\t%s\t%s\t%.2f\n",
-				r.ID,
-				r.Date.Format("2006-01-02"),
-				r.Description, r.Amount,
-			)
-		}
+
 	case "summary":
-		sumCmd := flag.NewFlagSet("summary", flag.ExitOnError)
-		sumCmd.Parse(os.Args[2:])
-		sumCmd.Usage = func() {
-			fmt.Println("Calculates all your expenses")
-			fmt.Println("Usage:")
-			fmt.Println("expense-tracker sumarry")
-			fmt.Println("\nFlags:")
-			sumCmd.PrintDefaults()
-		}
-		sum, err := TotalExpenses()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Printf("Total expenses: $%.2f\n", sum)
 
 	case "delete":
 		delCmd := flag.NewFlagSet("delete", flag.ExitOnError)
@@ -125,31 +89,81 @@ func main() {
 	}
 
 }
+func printCommandUsage(cmd *flag.FlagSet, usageText string) {
+	fmt.Println(usageText)
+	fmt.Println("\nFlags:")
+	cmd.PrintDefaults()
+}
 func handleAddCmd() {
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
 	description := addCmd.String("description", "", "add your new expense")
 	amount := addCmd.Float64("amount", 0, "the expense amount")
+	//dateStr := addCmd.String("date", "", "Optional date (YYYY-MM-DD)")
 
 	addCmd.Parse(os.Args[2:])
-	addCmd.Usage = func() {
-		fmt.Println("Add a new expense")
-		fmt.Println("Usage")
-		fmt.Println("expense-tracker add -description=\"desc\" -amount=100")
-		fmt.Println("\nFlags:")
-		addCmd.PrintDefaults()
-	}
-	if *description == "" || *amount <= 0 {
-		addCmd.Usage()
+
+	if addCmd.NFlag() == 0 || *description == "" || *amount <= 0 {
+		printCommandUsage(addCmd, "Add a new expense\nUsage: expense-tracker add -description=\"Lunch\" -amount=50 [-date=2026-04-08]")
 		return
 	}
 	exp, err := AddExpense(*description, *amount)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
-
 	fmt.Printf("Added expense: ID=%d\n", exp.ID)
 
 }
-func listCommand() {
+func handlelistCmd() {
+	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
+	listCmd.Parse(os.Args[2:])
+	printCommandUsage(listCmd, "expense-tracker list")
+	expenses, err := ListExpenses()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 
+	}
+	if len(expenses) == 0 {
+		fmt.Println("There are no expenses yet")
+	}
+	for _, r := range expenses {
+		fmt.Printf("#%d\t%s\t%s\t%.2f\n",
+			r.ID,
+			r.Date.Format("2006-01-02"),
+			r.Description, r.Amount,
+		)
+	}
+}
+func handleSumCmd() {
+	sumCmd := flag.NewFlagSet("summary", flag.ExitOnError)
+	sumCmd.Parse(os.Args[2:])
+	printCommandUsage(sumCmd, "expense-tracker sumarry")
+	sum, err := TotalExpenses()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("Total expenses: $%.2f\n", sum)
+
+}
+func handleDelCmd() {
+	delCmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	id := delCmd.Int("id", 0, "the id of the expense you want to delete")
+	delCmd.Parse(os.Args[2:])
+	printCommandUsage(delCmd, " expense-tracker delete -id=1")
+	expenses, err := loadExpense()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	if len(expenses) == 0 {
+		fmt.Println("There are no expenses yet")
+	}
+
+	err = deleteExpense(*id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }
