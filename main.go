@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -17,26 +17,21 @@ func main() {
 	command := os.Args[1]
 	switch command {
 	case "add":
+		handleAddCmd()
 
 	case "list":
+		handleListCmd()
 
 	case "summary":
+		handleSumCmd()
 
 	case "delete":
-		
-	case "monthlyExpense":
-		
-	case "update":
-		upCmd := flag.NewFlagSet("updating amount of an expense", flag.ExitOnError)
-		description := upCmd.String("desc", "", "describe  the expense to be updated")
-		amount := upCmd.Float64("amount", 0, "amount  to be updated")
-		upCmd.Parse(os.Args[2:])
-		exp, err := updateExpense(*description, *amount)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("Expense added successfully (ID: %d)\n", exp.ID)
+		handleDelCmd()
 
+	case "monthlyExpense":
+		handleMonthCmd()
+	case "update":
+		handleUpdateCmd()
 	case "help":
 		fmt.Println("Expense Tracker CLI")
 		fmt.Println("\nUsage:")
@@ -61,15 +56,26 @@ func handleAddCmd() {
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
 	description := addCmd.String("description", "", "add your new expense")
 	amount := addCmd.Float64("amount", 0, "the expense amount")
-	//dateStr := addCmd.String("date", "", "Optional date (YYYY-MM-DD)")
-
+	dateStr := addCmd.String("date", "", "Optional date (YYYY-MM-DD)")
+	var date time.Time
+	var err error
 	addCmd.Parse(os.Args[2:])
 
-	if addCmd.NFlag() == 0 || *description == "" || *amount <= 0 {
+	if *dateStr == "" {
+		date = time.Now()
+	} else {
+		date, err = time.Parse("2006-01-02", *dateStr)
+		if err != nil {
+			fmt.Println("Invalid date format. Use YYYY-MM-DD")
+			return
+		}
+	}
+
+	if *description == "" || *amount <= 0 {
 		printCommandUsage(addCmd, "Add a new expense\nUsage: expense-tracker add -description=\"Lunch\" -amount=50 [-date=2026-04-08]")
 		return
 	}
-	exp, err := AddExpense(*description, *amount)
+	exp, err := AddExpense(*description, *amount, date)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -77,7 +83,7 @@ func handleAddCmd() {
 	fmt.Printf("Added expense: ID=%d\n", exp.ID)
 
 }
-func handlelistCmd() {
+func handleListCmd() {
 	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
 	listCmd.Parse(os.Args[2:])
 	printCommandUsage(listCmd, "expense-tracker list")
@@ -129,18 +135,33 @@ func handleDelCmd() {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+	fmt.Printf("Expense deleted successfully (ID: %d)\n", *id)
 }
 func handleMonthCmd() {
-monthlyCmd := flag.NewFlagSet("monthlyExpense", flag.ExitOnError)
+	monthlyCmd := flag.NewFlagSet("monthlyExpense", flag.ExitOnError)
 
-		month := monthlyCmd.Int("month", 0, "Provide the months number")
-		monthlyCmd.Parse(os.Args[2:])
-		printCommandUsage(monthlyCmd,"expense-tracker list")
+	month := monthlyCmd.Int("month", 0, "Provide the months number")
+	monthlyCmd.Parse(os.Args[2:])
+	printCommandUsage(monthlyCmd, "expense-tracker list")
 
-		sum, err := ExpensesByMonth(*month)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Printf("Total expenses for month %d: $%.2f\n", *month, sum)
+	sum, err := ExpensesByMonth(*month)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Total expenses for month %d: $%.2f\n", *month, sum)
 }
-func
+func handleUpdateCmd() {
+	upCmd := flag.NewFlagSet("updating amount of an expense", flag.ExitOnError)
+	description := upCmd.String("desc", "", "describe  the expense to be updated")
+	amount := upCmd.Float64("amount", 0, "amount  to be updated")
+	upCmd.Parse(os.Args[2:])
+	exp, err := updateExpense(*description, *amount)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Expense updated successfully (ID: %d)\n", exp.ID)
+
+}

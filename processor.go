@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func AddExpense(description string, amount float64) (Expense, error) {
+func AddExpense(description string, amount float64, date time.Time) (Expense, error) {
 	if description == "" || amount <= 0 {
 		return Expense{}, fmt.Errorf("invalid description or amount")
 	}
@@ -25,7 +25,7 @@ func AddExpense(description string, amount float64) (Expense, error) {
 		ID:          maxID,
 		Description: description,
 		Amount:      amount,
-		Date:        time.Now(),
+		Date:        date,
 	}
 	expenses = append(expenses, expense)
 	err = saveExpenses(expenses)
