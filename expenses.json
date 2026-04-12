@@ -1,26 +1,25 @@
-[
+
  {
   "int": 1,
   "description": "Lunch",
   "amount": 20,
   "date": "2026-03-29T18:23:00.104219221+01:00"
- },
+ }
  {
   "int": 1,
   "description": "Dinner",
   "amount": 10,
   "date": "2026-03-29T18:24:55.208691714+01:00"
- },
+ }
  {
   "int": 2,
   "description": "buy a lambo",
   "amount": 100,
   "date": "2026-04-05T20:54:37.874264573+01:00"
- },
+ }
  {
   "int": 3,
   "description": "buy a new tooth brush",
   "amount": 500,
   "date": "2026-04-08T19:30:01.628126469+01:00"
  }
-]

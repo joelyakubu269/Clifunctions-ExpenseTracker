@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -9,28 +11,27 @@ func AddExpense(description string, amount float64, date time.Time) (Expense, er
 	if description == "" || amount <= 0 {
 		return Expense{}, fmt.Errorf("invalid description or amount")
 	}
-	expenses, err := loadExpense()
-	if err != nil {
-		return Expense{}, err
-	}
-	var maxID int
+	id := time.Now().UnixNano()
 
-	for _, r := range expenses {
-		if r.ID > maxID {
-			maxID = r.ID
-		}
-	}
-	maxID++
 	expense := Expense{
-		ID:          maxID,
+		ID:          int(id),
 		Description: description,
 		Amount:      amount,
 		Date:        date,
 	}
-	expenses = append(expenses, expense)
-	err = saveExpenses(expenses)
+	file, err := os.OpenFile("expenses.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // give you access to perform operations on the file
+	// such as append, create the file if it does not exist and to write only
 	if err != nil {
-		return Expense{}, fmt.Errorf("unable to save")
+		return Expense{}, err
+	}
+	defer file.Close()
+	data, err := json.MarshalIndent(expense, "", " ") // put expense in a json format
+	if err != nil {
+		return Expense{}, err
+	}
+	_, err = file.Write(append(data, '\n')) // append data(i.e expense in json format to expenses.json)
+	if err != nil {
+		return Expense{}, err
 	}
 	return expense, nil
 }
@@ -39,20 +40,20 @@ func deleteExpense(id int) error {
 	if err != nil {
 		return err
 	}
-	var delete []Expense
+	var updated []Expense
 	found := false
 	for _, r := range expenses {
 		if r.ID == id {
 			found = true
 			continue // i have issues on whether to reset the ids after deleting
 		}
-		delete = append(delete, r)
+		updated = append(updated, r)
 	}
 	if !found {
 		return fmt.Errorf("expense with ID %d not found", id)
 
 	}
-	return saveExpenses(delete)
+	return saveExpenses(updated)
 
 }
 func updateExpense(description string, amount float64) (Expense, error) {
