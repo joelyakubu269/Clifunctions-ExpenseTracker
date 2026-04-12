@@ -1,34 +1,46 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
 func loadExpense() ([]Expense, error) {
-	data, err := os.ReadFile("tasks.json")
-	if os.IsNotExist(err) {
-		err = os.WriteFile("tasks.json", []byte("[]"), 0644)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create tasks.json: %v", err)
+	file, err := os.Open("expenses.json")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []Expense{}, nil
 		}
-		data = []byte("[]")
-	} else if err != nil {
-	return nil, fmt.Errorf("failed to read tasks.json: %v", err)
+		return nil, err
 	}
+	defer file.Close()
+
 	var expenses []Expense
-	err = json.Unmarshal(data, &expenses)
-	return expenses, nil
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		var exp Expense
+		if err := json.Unmarshal(scanner.Bytes(), &exp); err != nil {
+			return nil, err
+		}
+		expenses = append(expenses, exp)
+	}
+
+	return expenses, scanner.Err()
 }
+
 func saveExpenses(expenses []Expense) error {
-	data, err := json.MarshalIndent(expenses, "", " ")
+	file, err := os.Create("expenses.json")
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile("tasks.json", []byte(data), 0644)
-	if err != nil {
-		return err
+	defer file.Close()
+
+	for _, exp := range expenses {
+		data, _ := json.Marshal(exp)
+		file.Write(append(data, '\n'))
 	}
+
 	return nil
 }
